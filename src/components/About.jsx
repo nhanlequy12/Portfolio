@@ -24,7 +24,7 @@ export default function About() {
       <div className="container about__grid">
         <Reveal className="about__card">
           <div className="about__card-head">
-            <img src={avatar} alt={PROFILE.name} className="about__avatar" />
+            <span className="about__avatar"><img src={avatar} alt={PROFILE.name} /></span>
             <div>
               <div className="about__name">{PROFILE.name}</div>
               <div className="about__role">{PROFILE.role}</div>
