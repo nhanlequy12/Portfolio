@@ -1,12 +1,13 @@
-import React from "react";
-import { T } from "./ui";
+import { PROFILE } from "../data";
 
 export default function Footer() {
   return (
-    <footer style={{ padding: "2rem", textAlign: "center", borderTop: "1px solid rgba(201,169,110,0.1)", background: T.dark }}>
-      <p style={{ fontFamily: "Arial,sans-serif", fontSize: "0.75rem", color: T.muted, letterSpacing: "1px" }}>
-        © 2026 Nhan Le Quy — AI Engineer · Ho Chi Minh City
-      </p>
+    <footer className="footer">
+      <div className="container footer__inner">
+        <span>© {new Date().getFullYear()} {PROFILE.name} · {PROFILE.role} · Ho Chi Minh City</span>
+        <span>Designed &amp; built with React + Vite</span>
+        <a href="#hero" className="footer__top">Back to top ↑</a>
+      </div>
     </footer>
   );
 }

@@ -1,85 +1,72 @@
-import React, { useState, useEffect } from "react";
-import { T } from "./ui";
+import { useEffect, useState } from "react";
+
+const LINKS = [
+  { id: "about", label: "About" },
+  { id: "experience", label: "Experience" },
+  { id: "projects", label: "Projects" },
+  { id: "skills", label: "Skills" },
+];
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
+  const [progress, setProgress] = useState(0);
   const [active, setActive] = useState("");
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 40);
+    const ids = ["hero", ...LINKS.map((l) => l.id), "contact"];
+    const onScroll = () => {
+      const y = window.scrollY;
+      setScrolled(y > 24);
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      setProgress(max > 0 ? Math.min(100, (y / max) * 100) : 0);
 
-      const sections = ["hero", "about", "experience", "projects", "skills", "contact"];
-      let current = "";
-
-      for (let section of sections) {
-        const element = document.getElementById(section);
-        if (element) {
-          const rect = element.getBoundingClientRect();
-          // 150px offset to account for navbar height + breathing room
-          if (rect.top <= 150) {
-            current = section;
-          }
-        }
+      let current = "hero";
+      for (const id of ids) {
+        const el = document.getElementById(id);
+        if (el && el.getBoundingClientRect().top <= 160) current = id;
       }
-
-      setActive((prev) => {
-        if (window.scrollY === 0) return "hero";
-
-        // If we are at the very bottom of the page, highlight the last section (contact)
-        if (window.innerHeight + Math.round(window.scrollY) >= document.body.offsetHeight - 50) {
-          return "contact";
-        }
-
-        if (current !== "" && prev !== current) return current;
-        return prev;
-      });
+      if (window.innerHeight + Math.round(y) >= document.body.offsetHeight - 40) current = "contact";
+      setActive(current);
     };
-
-    window.addEventListener("scroll", handleScroll);
-    handleScroll(); // Initial check
-
-    return () => window.removeEventListener("scroll", handleScroll);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const links = ["about", "experience", "projects", "skills", "contact"];
-
   return (
-    <nav style={{
-      position: "fixed", top: 0, left: 0, right: 0, zIndex: 100,
-      padding: "1.2rem 3rem",
-      display: "flex", justifyContent: "space-between", alignItems: "center",
-      background: scrolled ? "rgba(13,15,20,0.92)" : "transparent",
-      backdropFilter: scrolled ? "blur(10px)" : "none",
-      borderBottom: scrolled ? "1px solid rgba(201,169,110,0.15)" : "none",
-      transition: "all 0.4s",
-    }}>
-      <a href="#hero" onClick={() => setActive("hero")} style={{ background: "none", border: "none", cursor: "pointer", fontFamily: "Georgia,serif", fontSize: "1rem", letterSpacing: "3px", color: T.gold, textTransform: "uppercase", textDecoration: "none" }}>
-        Nhan Le Quy
-      </a>
+    <nav className={`nav ${scrolled ? "nav--scrolled" : ""}`}>
+      <div className="nav__progress" style={{ width: `${progress}%` }} />
+      <div className="container nav__inner">
+        <a href="#hero" className="nav__logo" aria-label="Back to top" onClick={() => setOpen(false)}>
+          nhan<i>.</i>
+        </a>
 
-      <ul style={{ display: "flex", gap: "2rem", listStyle: "none" }}>
-        {links.map(id => (
-          <li key={id}>
+        <button
+          className={`nav__burger ${open ? "nav__burger--open" : ""}`}
+          aria-label="Toggle menu"
+          aria-expanded={open}
+          onClick={() => setOpen((o) => !o)}
+        >
+          <span /><span /><span />
+        </button>
+
+        <div className={`nav__links ${open ? "nav__links--open" : ""}`}>
+          {LINKS.map(({ id, label }) => (
             <a
+              key={id}
               href={`#${id}`}
-              onClick={() => setActive(id)}
-              style={{
-                background: "none", border: "none", cursor: "pointer",
-                fontFamily: "Arial,sans-serif", fontSize: "0.75rem",
-                letterSpacing: "2px", textTransform: "uppercase",
-                color: active === id ? T.gold : T.muted,
-                transition: "color 0.3s",
-                borderBottom: active === id ? `1px solid ${T.gold}` : "none",
-                paddingBottom: 2,
-                textDecoration: "none"
-              }}
+              className={`nav__link ${active === id ? "nav__link--active" : ""}`}
+              onClick={() => setOpen(false)}
             >
-              {id}
+              {label}
             </a>
-          </li>
-        ))}
-      </ul>
+          ))}
+          <a href="#contact" className="btn btn--ink nav__cta" onClick={() => setOpen(false)}>
+            Get in touch
+          </a>
+        </div>
+      </div>
     </nav>
   );
 }
